@@ -12,26 +12,12 @@ use Illuminate\Support\Facades\DB;
 
 class ProductsController extends Controller
 {
-    //
-    // private $counter = 0;
     public function postProducts()
     {
-        // Takes raw data from the request
-        // $json = Https::get'https://demoshopapi.keydev.eu/api/v1/products');
-
-        // // Converts it into a PHP object
-        // $data = json_decode($json);
-
-        // $counter = (int)config('global.counter');
-        // echo ($counter); 
-        // $newCounter = $counter+1;
-        // config('global.counter', $newCounter);
-        // echo($newCounter); 
         $productsCount = 0;
         if(!is_null(DB::table('products')->count()))
             $productsCount = DB::table('products')->count();
         $page = $productsCount/20;
-        echo($page);
 
         if($productsCount > 0)
             $response = Http::get('https://demoshopapi.keydev.eu/api/v1/products?page='.$page);
@@ -41,14 +27,6 @@ class ProductsController extends Controller
 
 
         $data = json_decode($response);
-
-        // $firstProductName = $data['data'][1]['product_name'];
-        // \Log::info("first name is ", $firstProductName);
-
-
-        // $departments = array();
-        // $departmentProductsCount = array();
-        // $counter = 0;
 
         foreach($data->data as $product)
         {
@@ -64,13 +42,6 @@ class ProductsController extends Controller
             $product_ratings = $product->product_ratings;
             $product_sales = $product->product_sales;
 
-
-            // //grouping
-
-            // //add
-            // array_push($departments, $product_department);
-            // array_push($departmentProductsCount, $product_department);
-
             $newProduct = new Products;
             $newProduct->name = $product_name;
             $newProduct->image = str_replace(" ", "/",$product->product_image_sm);$product_image;
@@ -85,36 +56,41 @@ class ProductsController extends Controller
             $newProduct->sales = $product_sales;
 
             $newProduct->save();
+            $department = DB::table('departments')
+            ->select('name')
+            ->having('name', 'LIKE', $product_departmentId)
+            ->get();
 
-            $newDepartment = new departments;
-            $newDepartment -> name = $product_department;
-            $newDepartment->save();
 
 
-            echo "Product Name: " .$product->product_name . "\n";
-            echo "Product Department: " .$product->product_department . "\n";
+            if(count($department) == 0)
+            {
+                $newDepartment = new departments;
+                $newDepartment -> name = $product_departmentId;
+                $newDepartment->save();
+            }
+
         }
-
-
-
         
+
+            echo "<div class=\"pop-up-message-container\"><h4 class=\"pop-up-message\">20 new products were just imported to the Database</h4></div>";
         return view('welcome');
     }
 
     public function getAllProducts()
     {
         $getProduct = DB::table('products')
-                        ->select('name')
-                       ->paginate(10);
+                        ->select('name', 'image', 'type', 'department', 'departmentId',
+                         'stock', 'color', 'price', 'material', 'rating', 'sales')
+                        ->paginate(10);
 
 
 
         $data = [
-        'data' => $getProduct->items(), // Get the paginated items
+        'data' => $getProduct->items(),
         'current_page' => $getProduct->currentPage(),
         'last_page' => $getProduct->lastPage(),
         'per_page' => $getProduct->perPage(),
-        // Add other pagination data as needed
     ];
 
         return response()->json($getProduct);
@@ -131,11 +107,10 @@ class ProductsController extends Controller
 
 
         $data = [
-        'data' => $getProduct->items(), // Get the paginated items
+        'data' => $getProduct->items(),
         'current_page' => $getProduct->currentPage(),
         'last_page' => $getProduct->lastPage(),
         'per_page' => $getProduct->perPage(),
-        // Add other pagination data as needed
     ];
 
         return response()->json($getProduct);

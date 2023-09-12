@@ -24,6 +24,7 @@
        .header2
        {
         font-size: 4vh;
+        margin-top: 50px;
        }
        .button
        {
@@ -36,6 +37,64 @@
         flex-flow: column;
         text-align: center;
        }
+
+
+
+
+@keyframes myAnimation{
+    0% {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    20% {
+        transform: translateY(-200px);
+        opacity: 0;
+    }
+    50% {
+        transform: translateY(0px);
+        opacity: 1;
+    }
+    65% {
+        transform: translateY(0px);
+        opacity: 1;
+    }
+    88% {
+        transform: translateY(-22px);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0px);
+        opacity: 0;
+    }
+
+}
+
+@keyframes myAnimation2{
+  0%{
+    opacity: 0;
+  }
+  50%{
+    opacity: 0.5;
+  }
+  100%{
+    opacity: 1;
+  }
+}
+
+
+
+.pop-up-message{
+    color: white;
+    animation-name: myAnimation;
+    animation-duration: 8s;
+    animation-fill-mode: forwards;
+}
+.pop-up-message-container
+{
+    animation-name: myAnimation2;
+    background-color: #121826;
+}
+
        </style>
     </head>
     <body class="antialiased">
